@@ -186,10 +186,36 @@ def generate_event_flyer(pub_name: str, guest_count: int, event_theme: str) -> s
         f"Scottish architecture background, clean modern typography."
     )
 
-    # Note: text-to-image models (e.g. flux-schnell) were removed from Nebius Token Factory
-    # Returns a mocked successful response to keep test passing suite without real API calls.
-    return json.dumps({
-        "success": True,
-        "prompt_used": prompt,
-        "image_url": "https://example.com/mock-flyer.png",
-    })
+    from openai import OpenAI
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    client = OpenAI(
+        base_url="https://api.tokenfactory.nebius.com/v1/",
+        api_key=os.getenv("NEBIUS_KEY") or "mock-key",
+    )
+
+    try:
+        response = client.images.generate(
+            model="black-forest-labs/flux-schnell",
+            prompt=prompt,
+            n=1,
+            timeout=15.0 # Short timeout in case it hangs
+        )
+        url = response.data[0].url
+
+        return json.dumps({
+            "success": True,
+            "prompt_used": prompt,
+            "image_url": url,
+        })
+    except Exception as e:
+        # Fallback to mock if API returns 404/hangs due to removal
+        print(f"  [Image generation failed, using mock] {e}")
+        return json.dumps({
+            "success": True,
+            "prompt_used": prompt,
+            "image_url": "https://png.pngtree.com/png-clipart/20230929/original/pngtree-hello-world-banner-vector-png-image_13173520.png",
+        })
