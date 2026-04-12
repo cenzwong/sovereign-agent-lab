@@ -78,13 +78,13 @@ def _make_mcp_caller(tool_name: str, server_script: str):
     return call
 
 
+from pydantic import create_model, Field
+
 async def discover_tools(server_script: str) -> list:
     """
     Connect once, list all tools, and wrap each as a LangChain StructuredTool.
-
-    Dynamic discovery is the key property: add a new @mcp.tool() to
-    mcp_venue_server.py and this function picks it up automatically.
-    No changes needed here.
+    We must provide an explicit args_schema from the MCP JSON schema so
+    that LangChain knows how to validate the arguments Llama provides.
     """
     params = StdioServerParameters(command=sys.executable, args=[server_script])
     async with stdio_client(params) as (r, w):
@@ -93,10 +93,27 @@ async def discover_tools(server_script: str) -> list:
             raw   = await session.list_tools()
             tools = []
             for t in raw.tools:
+                # Convert the JSON schema from MCP into a Pydantic model
+                properties = t.inputSchema.get("properties", {})
+                required   = t.inputSchema.get("required", [])
+                
+                fields = {}
+                for name, props in properties.items():
+                    field_type = any
+                    if props.get("type") == "integer": field_type = int
+                    elif props.get("type") == "string": field_type = str
+                    elif props.get("type") == "boolean": field_type = bool
+                    
+                    default = ... if name in required else None
+                    fields[name] = (field_type, Field(default=default, description=props.get("description", "")))
+                
+                Schema = create_model(f"{t.name}Arguments", **fields)
+
                 lc_tool = StructuredTool.from_function(
                     func=_make_mcp_caller(t.name, server_script),
                     name=t.name,
                     description=t.description or f"MCP tool: {t.name}",
+                    args_schema=Schema
                 )
                 tools.append(lc_tool)
             return tools, [t.name for t in raw.tools]
@@ -109,6 +126,13 @@ def extract_trace(result: dict) -> list:
     for m in result["messages"]:
         role    = getattr(m, "type", "unknown")
         content = m.content
+        
+        # Handle native tool calls (OpenAI-style)
+        if hasattr(m, "tool_calls") and m.tool_calls:
+            for tc in m.tool_calls:
+                trace.append({"role": "tool_call", "tool": tc["name"], "args": tc["args"]})
+            continue
+
         if isinstance(content, list):
             for block in content:
                 if isinstance(block, dict) and block.get("type") == "tool_use":
@@ -153,7 +177,10 @@ async def main() -> None:
     print(f"\n{'=' * 65}")
     print("  Query 1 — Search + Detail Fetch")
     print(f"{'=' * 65}\n")
-    r1     = agent.invoke({"messages": [("user", q1)]})
+    r1     = agent.invoke({"messages": [
+        ("system", "You are an Edinburgh research assistant. Use tools to find venue information."),
+        ("user", q1)
+    ]})
     trace1 = extract_trace(r1)
     print_trace(trace1)
     output["queries"]["query_1"] = {"query": q1, "trace": trace1}
@@ -163,7 +190,10 @@ async def main() -> None:
     print(f"\n{'=' * 65}")
     print("  Query 2 — Impossible Constraint")
     print(f"{'=' * 65}\n")
-    r2     = agent.invoke({"messages": [("user", q2)]})
+    r2     = agent.invoke({"messages": [
+        ("system", "You are an Edinburgh research assistant. Use tools to find venue information."),
+        ("user", q2)
+    ]})
     trace2 = extract_trace(r2)
     print_trace(trace2)
     output["queries"]["query_2"] = {"query": q2, "trace": trace2}
