@@ -32,10 +32,11 @@ The one thing you WILL do here: make sure you understand what each function
 returns and when it returns an error — because the agent's ability to reason
 about failures depends entirely on what these functions return.
 """
-
+import os
 import json
 import requests
 from langchain_core.tools import tool
+from openai import OpenAI
 
 # ─── Venue database ───────────────────────────────────────────────────────────
 # In Week 2 this gets replaced with a real web search.
@@ -171,12 +172,12 @@ def calculate_catering_cost(guests: int, price_per_head_gbp: float) -> str:
 
 
 @tool
-def generate_event_flyer(venue_name: str, guest_count: int, event_theme: str) -> str:
+def generate_event_flyer(pub_name: str, guest_count: int, event_theme: str) -> str:
     """
     Generate a promotional event flyer image for the confirmed Edinburgh venue.
     Call this AFTER a venue is confirmed, as the final output step.
     Returns a URL to the generated image.
-    venue_name: the confirmed pub name
+    pub_name: the confirmed pub name
     guest_count: confirmed number of attendees
     event_theme: short description, e.g. 'AI Meetup, professional, Scottish'
     """
@@ -187,25 +188,25 @@ def generate_event_flyer(venue_name: str, guest_count: int, event_theme: str) ->
     #      import os
     #
     # 2. Create the client:
-    #      client = OpenAI(
-    #          base_url="https://api.tokenfactory.nebius.com/v1/",
-    #          api_key=os.getenv("NEBIUS_KEY"),
-    #      )
+    client = OpenAI(
+        base_url="https://api.tokenfactory.nebius.com/v1/",
+        api_key=os.getenv("NEBIUS_KEY"),
+    )
     #
     # 3. Build the prompt — include venue name, guest count, event theme:
-    #      prompt = (
-    #          f"Professional event flyer for {event_theme} at {venue_name}, "
-    #          f"Edinburgh. {guest_count} guests tonight. Warm lighting, "
-    #          f"Scottish architecture background, clean modern typography."
-    #      )
+    prompt = (
+        f"Professional event flyer for {event_theme} at {pub_name}, "
+        f"Edinburgh. {guest_count} guests tonight. Warm lighting, "
+        f"Scottish architecture background, clean modern typography."
+    )
     #
     # 4. Call the image API:
-    #      response = client.images.generate(
-    #          model="black-forest-labs/flux-schnell",
-    #          prompt=prompt,
-    #          n=1,
-    #      )
-    #      url = response.data[0].url
+    response = client.images.generate(
+        model="black-forest-labs/flux-schnell",
+        prompt=prompt,
+        n=1,
+    )
+    url = response.data[0].url
     #
     # 5. Return a dict with at minimum: success, prompt_used, image_url
     #    On failure, return: success=False, error=str(e), prompt_used, image_url=""
@@ -213,13 +214,9 @@ def generate_event_flyer(venue_name: str, guest_count: int, event_theme: str) ->
     # When implemented, the mechanical check in grade.py will pass automatically.
     # ──────────────────────────────────────────────────────────────────────────
 
-    prompt = (
-        f"Professional event flyer for {event_theme} at {venue_name}, "
-        f"Edinburgh. {guest_count} guests."
-    )
     return json.dumps({
-        "success": False,
-        "error": "STUB — see TODO in sovereign_agent/tools/venue_tools.py",
+        "success": True,
+        "error": "",
         "prompt_used": prompt,
-        "image_url": "",
+        "image_url": url,
     })

@@ -1,0 +1,158 @@
+
+--- Task A: Main Edinburgh Brief ---
+
+=================================================================
+  TASK A — Main Edinburgh Brief
+=================================================================
+
+  [HUMAN]
+  Rod needs a pub tonight for 160 people with vegan options and a quiet corner for a 30-minute webinar segment. Check The Albanach and The Haymarket Vaults. If one works, calculate catering at £35 per head. Also check Edinburgh weather for outdoor drinks suitability. Finally, generate a promotional flyer for the confirmed venue with the theme 'AI Meetup, Edinburgh, professional'.
+
+  [TOOL]
+  {"success": true, "pub_name": "The Albanach", "address": "2 Hunter Square, Edinburgh", "capacity": 180, "vegan": true, "status": "available", "meets_all_constraints": true}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Haymarket Vaults", "address": "1 Dalry Road, Edinburgh", "capacity": 160, "vegan": true, "status": "available", "meets_all_constraints": true}
+
+  [TOOL]
+  {"success": true, "guests": 160, "price_per_head_gbp": 35.0, "total_cost_gbp": 5600.0}
+
+  [TOOL]
+  {"success": true, "temp_c": 6.9, "description": "Partly cloudy", "precipitation_mm": 0.0, "outdoor_ok": true}
+
+  [TOOL]
+  {"success": true, "error": "", "prompt_used": "Professional event flyer for AI Meetup, Edinburgh, professional at The Albanach, Edinburgh. 160 guests tonight. Warm lighting, Scottish architecture background, clean modern typography.", "image_url": "https://pictures-storage.storage.eu-north1.nebius.cloud/text2img-02aa1b22-5f19-4b7b-a3eb-6580c5077996_00001_.webp"}
+
+  [AI]
+  The Albanach is available and meets all constraints, including capacity and vegan options. The catering cost for 160 guests at £35 per head is £5600. The current weather in Edinburgh is partly cloudy with no precipitation, making it suitable for outdoor drinks. A promotional flyer for the event has been generated and can be found at the provided image URL.
+
+  ⚠️  No tool calls were made. Check that sovereign_agent/ is importable.
+
+→ Record results in week1/answers/ex2_answers.py
+
+--- Task B: Flyer Tool ---
+  If generate_event_flyer is still a stub, you'll see 'STUB' in the output.
+  Implement the TODO in sovereign_agent/tools/venue_tools.py first.
+
+
+=================================================================
+  TASK B — Flyer Tool
+=================================================================
+
+  [HUMAN]
+  The Haymarket Vaults is confirmed for 160 guests tonight. Generate a promotional flyer with the theme 'Edinburgh AI Meetup, tech professionals, modern venue'.
+
+  [TOOL]
+  {"success": true, "error": "", "prompt_used": "Professional event flyer for Edinburgh AI Meetup, tech professionals, modern venue at The Haymarket Vaults, Edinburgh. 160 guests tonight. Warm lighting, Scottish architecture background, clean modern typography.", "image_url": "https://pictures-storage.storage.eu-north1.nebius.cloud/text2img-3afe43d5-6734-4959-96f7-531a81a51c2f_00001_.webp"}
+
+  [AI]
+  The provided function call is for generating a promotional event flyer for the confirmed Edinburgh venue, The Haymarket Vaults, with 160 guests and the theme 'Edinburgh AI Meetup, tech professionals, modern venue'.
+
+
+--- Task C / Scenario 1: First Choice Unavailable ---
+
+=================================================================
+  TASK C / Scenario 1 — First Choice Unavailable
+=================================================================
+
+  [HUMAN]
+  Check The Bow Bar first for 160 vegan guests tonight. If it doesn't meet the requirements, check any other available venue.
+
+  [TOOL]
+  {"success": true, "pub_name": "The Bow Bar", "address": "80 West Bow, Edinburgh", "capacity": 80, "vegan": true, "status": "full", "meets_all_constraints": false}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Haymarket Vaults", "address": "1 Dalry Road, Edinburgh", "capacity": 160, "vegan": true, "status": "available", "meets_all_constraints": true}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Guilford Arms", "address": "1 West Register Street, Edinburgh", "capacity": 200, "vegan": false, "status": "available", "meets_all_constraints": false}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Albanach", "address": "2 Hunter Square, Edinburgh", "capacity": 180, "vegan": true, "status": "available", "meets_all_constraints": true}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Bow Bar", "address": "80 West Bow, Edinburgh", "capacity": 80, "vegan": true, "status": "full", "meets_all_constraints": false}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Haymarket Vaults", "address": "1 Dalry Road, Edinburgh", "capacity": 160, "vegan": true, "status": "available", "meets_all_constraints": true}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Guilford Arms", "address": "1 West Register Street, Edinburgh", "capacity": 200, "vegan": false, "status": "available", "meets_all_constraints": false}
+
+  [AI]
+  Sorry, need more steps to process this request.
+
+
+--- Task C / Scenario 2: Impossible Constraint ---
+
+=================================================================
+  TASK C / Scenario 2 — Impossible Constraint (300 guests)
+=================================================================
+
+  [HUMAN]
+  Find a venue from our known venues for 300 people with vegan options.
+
+  [TOOL]
+  {"success": true, "pub_name": "The Albanach", "address": "2 Hunter Square, Edinburgh", "capacity": 180, "vegan": true, "status": "available", "meets_all_constraints": false}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Haymarket Vaults", "address": "1 Dalry Road, Edinburgh", "capacity": 160, "vegan": true, "status": "available", "meets_all_constraints": false}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Guilford Arms", "address": "1 West Register Street, Edinburgh", "capacity": 200, "vegan": false, "status": "available", "meets_all_constraints": false}
+
+  [TOOL]
+  {"success": true, "pub_name": "The Bow Bar", "address": "80 West Bow, Edinburgh", "capacity": 80, "vegan": true, "status": "full", "meets_all_constraints": false}
+
+  [AI]
+  Unfortunately, none of the known venues meet the capacity and dietary requirements. The Albanach, The Haymarket Vaults, and The Guilford Arms have a capacity of 180, 160, and 200 respectively, which is less than the required capacity of 300. The Bow Bar has a capacity of 80, which is also less than the required capacity, and it is currently full. Therefore, it is not possible to find a venue from the known venues that meets the requirements.
+
+
+--- Task C / Scenario 3: Out of Scope ---
+
+=================================================================
+  TASK C / Scenario 3 — Out of Scope
+=================================================================
+
+  [HUMAN]
+  What time does the last train leave Edinburgh Waverley for London tonight?
+
+  [AI]
+  Your input is lacking necessary details. Please provide more information or specify the task you need help with.
+
+
+→ Answer the Scenario questions in week1/answers/ex2_answers.py
+
+=================================================================
+  TASK D — Agent Graph Structure (Mermaid)
+=================================================================
+  Paste the output below into https://mermaid.live
+
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	agent(agent)
+	tools(tools)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> agent;
+	agent -.-> __end__;
+	agent -.-> tools;
+	tools --> agent;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
+
+
+  Now open exercise3_rasa/data/flows.yml
+  Both files describe the agent's behaviour — compare them.
+
+  LangGraph: one loop node, model decides the path at runtime
+  Rasa CALM: flows.yml — every task described explicitly, LLM picks the flow
+  Record your comparison in week1/answers/ex2_answers.py → TASK_D_COMPARISON
+
+✅  Results saved to /Users/cenzwong/Projects/sovereign-agent-lab/week1/outputs/ex2_results.json
+    Fill in week1/answers/ex2_answers.py
